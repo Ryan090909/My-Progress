@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enter Name - The Fischhood</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body style="background-image: url('{{ url_for('static', filename='images/fissch-fi_2.webp') }}'); background-size: cover; background-position: center;" class="flex flex-col items-center justify-center min-h-screen">
+
+    <div class="text-center bg-gray-900/85 p-10 rounded-2xl backdrop-blur-md border border-gray-700 shadow-2xl max-w-md w-full">
+        <h1 class="text-4xl font-black text-yellow-400 drop-shadow-md mb-2 uppercase italic">
+            Enter Traveler
+        </h1>
+        <p class="text-gray-300 text-sm mb-6">What shall you be known as in The Fischhood?</p>
+        
+        <form method="POST" class="space-y-4">
+            <input type="text" name="username" placeholder="Enter your username..." required autocomplete="off"
+                   class="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 text-center font-bold text-lg">
+            
+            <button type="submit" class="w-full bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-gray-900 font-black text-xl py-3 rounded-lg shadow-lg transform hover:scale-105 transition duration-200 border border-yellow-200">
+                Enter World 🎣
+            </button>
+        </form>
+    </div>
+
+</body>
+</html>

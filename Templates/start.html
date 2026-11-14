@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>The Fischhood</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body style="background-image: url('{{ url_for('static', filename='images/fissch-fi.webp') }}'); background-size: cover; background-position: center;" class="flex flex-col items-center justify-center min-h-screen">
+
+    <div class="text-center bg-black/50 p-12 rounded-2xl backdrop-blur-sm border border-white/10 shadow-2xl">
+        <h1 class="text-6xl font-black text-yellow-400 drop-shadow-[0_5px_5px_rgba(0,0,0,0.9)] tracking-wider mb-8 uppercase italic">
+            The Fischhood
+        </h1>
+        <!-- Updated href to point to set_name -->
+        <a href="{{ url_for('set_name') }}" class="inline-block bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-gray-900 font-black text-2xl px-12 py-4 rounded-xl shadow-[0_10px_20px_rgba(0,0,0,0.5)] transform hover:scale-105 transition duration-200 border-2 border-yellow-200">
+            START 🎣
+        </a>
+    </div>
+
+</body>
+</html>
