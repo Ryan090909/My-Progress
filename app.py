@@ -2,6 +2,7 @@ import os
 import random
 from datetime import date
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+from sqlalchemy import inspect
 from models import db, User, CatchLog, DailyQuest
 from data import (
     RARITIES,
@@ -24,6 +25,11 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 with app.app_context():
+    inspector = inspect(db.engine)
+    if inspector.has_table("user"):
+        columns = [col["name"] for col in inspector.get_columns("user")]
+        if "equipped_rod" not in columns:
+            db.drop_all()
     db.create_all()
 
 QUEST_POOL = [
