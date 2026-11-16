@@ -41,6 +41,7 @@ QUEST_POOL = [
 
 
 def find_location_image(location_name):
+    first_word = location_name.split()[0].lower()
     targets = {location_name.lower().replace(" ", "").replace("_", "").replace("-", "")}
     mapped = LOCATION_IMAGES.get(location_name)
     if mapped:
@@ -59,7 +60,7 @@ def find_location_image(location_name):
             if ext.lower() not in (".png", ".jpg", ".jpeg", ".webp", ".gif"):
                 continue
             normalized = stem.lower().replace(" ", "").replace("_", "").replace("-", "")
-            if normalized in targets:
+            if normalized in targets or first_word in normalized:
                 return f"{url_prefix}{fname}"
     return None
 
