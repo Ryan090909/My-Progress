@@ -1,72 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>The Fischhood - Game</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <title>The Fischhood</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body style="background-image: url('{{ bg_image }}'); background-size: cover; background-position: center;" class="flex flex-col items-center justify-center min-h-screen transition-all duration-500">
+<body class="bg-slate-950 text-slate-100 min-h-screen p-6">
+  <div class="max-w-4xl mx-auto space-y-5">
 
-    <div class="absolute top-4 left-4">
-        <a href="{{ url_for('start_screen') }}" class="bg-gray-800 hover:bg-gray-700 text-white font-bold px-4 py-2 rounded-lg border border-gray-600 shadow-lg text-sm">
-            🏠 Home
-        </a>
+    <!-- Header & Player Stats -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-wrap justify-between items-center gap-4">
+      <div>
+        <h1 class="text-2xl font-bold">The Fischhood — {{ user.username }}</h1>
+        <p class="text-sm text-slate-300 mt-1">
+          Coins: <strong class="text-amber-400">{{ "{:,}".format(user.coins) }}</strong> |
+          Rod: <strong>{{ user.equipped_rod }} (+{{ user.rod_level }})</strong>
+          {% if user.rod_enchant %}<span class="text-purple-400 font-semibold">[{{ user.rod_enchant }}]</span>{% endif %} |
+          Bait: <strong>{{ user.equipped_bait or "None" }} ({{ user.bait_count }})</strong>
+        </p>
+        <p class="text-sm text-slate-300 mt-1">
+          Total Luck: <strong class="text-emerald-400">+{{ total_luck }}</strong> |
+          Coin Multiplier: <strong class="text-sky-400">{{ total_coin_mult }}x</strong>
+          {% if user.aurora_casts_left > 0 %}
+            | <strong class="text-fuchsia-400">Aurora Active ({{ user.aurora_casts_left }} casts)</strong>
+          {% endif %}
+        </p>
+      </div>
+      <div class="flex gap-2">
+        <a href="{{ url_for('shop') }}" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg">Shop</a>
+        <a href="{{ url_for('logout') }}" class="bg-rose-600 hover:bg-rose-500 text-white font-semibold px-4 py-2 rounded-lg">Logout</a>
+      </div>
     </div>
 
-    <div class="bg-gray-800 bg-opacity-90 p-8 rounded-xl shadow-2xl text-center max-w-lg w-full border border-gray-700">
-        
-        <!-- Player Stats Bar -->
-        <div class="mb-4 bg-gray-900 px-4 py-2 rounded-lg border border-gray-700 flex justify-between items-center text-white">
-            <span class="font-bold">👤 {{ user.username }}</span>
-            <span class="text-yellow-400 font-extrabold">🪙 Coins: {{ user.coins }}</span>
+    <!-- Flash Notifications -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="bg-emerald-900/80 border border-emerald-500 text-emerald-100 px-4 py-3 rounded-lg font-semibold">
+          {{ message }}
         </div>
+      {% endfor %}
+    {% endwith %}
 
-        <h1 class="text-3xl font-extrabold mb-2 tracking-wide text-white">📍 {{ current_loc }}</h1>
-        <p class="text-sm text-gray-300 mb-6">🧍‍♂️ 🎣 Cast your line into the depths</p>
-
-        <form method="POST" class="space-y-4">
-            <button name="action" value="cast" class="w-full bg-blue-600 hover:bg-blue-500 font-bold py-3 rounded-lg transition shadow-lg text-white">
-                Cast Line 🎣
-            </button>
-
-            <div class="flex gap-2">
-                <select name="destination" class="bg-gray-700 text-white px-3 py-2 rounded-lg flex-grow border border-gray-600 focus:outline-none">
-                    {% for loc in locations %}
-                        <option value="{{ loc }}" {% if loc == current_loc %}selected{% endif %}>{{ loc }}</option>
-                    {% endfor %}
-                </select>
-                <button name="action" value="travel" class="bg-emerald-600 hover:bg-emerald-500 font-bold px-4 py-2 rounded-lg text-white transition">
-                    Travel
-                </button>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2">
-                <button name="action" value="sell" class="bg-amber-600 hover:bg-amber-500 font-bold py-2 rounded-lg transition text-xs text-white shadow">
-                    💰 Sell All Fish
-                </button>
-                <button name="action" value="clear" class="bg-red-600/80 hover:bg-red-500 font-bold py-2 rounded-lg transition text-xs text-white shadow">
-                    🗑️ Clear Inventory
-                </button>
-            </div>
-        </form>
-
-        {% if message %}
-            <div class="mt-4 p-3 bg-gray-900 rounded-lg text-yellow-300 font-semibold border border-gray-700">
-                {{ message }}
-            </div>
+    <!-- Daily Quest -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex justify-between items-center">
+      <div>
+        <span class="text-xs uppercase tracking-wider text-amber-400 font-bold">Daily Quest</span>
+        <p class="font-semibold">{{ daily_quest.description }} ({{ daily_quest.current_count }}/{{ daily_quest.target_count }})</p>
+      </div>
+      <div class="text-right">
+        <span class="text-sm text-slate-300">Reward: <strong class="text-amber-400">{{ "{:,}".format(daily_quest.reward_coins) }} Coins</strong></span>
+        {% if daily_quest.completed %}
+          <span class="ml-2 bg-emerald-600 text-white text-xs font-bold px-2 py-1 rounded">COMPLETED</span>
         {% endif %}
-
-        <div class="mt-6 text-left">
-            <h2 class="text-sm font-semibold text-gray-400 border-b border-gray-700 pb-1 mb-2">Inventory ({{ inventory|length }})</h2>
-            <ul class="max-h-40 overflow-y-auto space-y-1 text-sm text-gray-200">
-                {% for item in inventory %}
-                    <li class="bg-gray-900 px-3 py-1 rounded flex justify-between border border-gray-800">
-                        <span>{{ item }}</span>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+      </div>
     </div>
 
+    <!-- Fishing Location Card (Uses Location Theme) -->
+    <div class="{{ locations[selected_location]['theme'] }} rounded-xl p-6 shadow-lg border border-white/10">
+      <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+        <h2 class="text-xl font-bold">{{ selected_location }}</h2>
+        <form method="GET" action="{{ url_for('index') }}">
+          <select name="location" onchange="this.form.submit()" class="bg-slate-900 text-white border border-white/20 rounded-lg px-3 py-2">
+            {% for loc_name in locations.keys() %}
+              <option value="{{ loc_name }}" {% if loc_name == selected_location %}selected{% endif %}>{{ loc_name }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+
+      {% if selected_location in location_images %}
+        <img
+          class="w-full max-h-60 object-cover rounded-lg mb-4"
+          src="{{ url_for('static', filename=location_images[selected_location]) }}"
+          data-img="{{ location_images[selected_location] }}"
+          onerror="if(!this.dataset.tried){this.dataset.tried=1;this.src='/static/images/'+this.dataset.img;}else{this.style.display='none';}"
+          alt="{{ selected_location }}"
+        >
+      {% endif %}
+
+      <form method="POST" action="{{ url_for('fish') }}">
+        <input type="hidden" name="location" value="{{ selected_location }}">
+        <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-lg py-3 rounded-lg transition">
+          Cast Line at {{ selected_location }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Fish Radar -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+      <h3 class="font-bold text-lg mb-2">Fish Radar</h3>
+      {% if user.has_radar and radar_odds %}
+        <div class="flex flex-wrap gap-3 text-sm">
+          {% for rarity, pct in radar_odds.items() %}
+            <span class="bg-slate-800 px-3 py-1 rounded-full">
+              <strong>{{ rarity }}:</strong> {{ pct }}%
+            </span>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-sm text-slate-400">Locked — Purchase the <strong>Fish Radar</strong> in the Shop to inspect live rarity drop odds.</p>
+      {% endif %}
+    </div>
+
+    <!-- Recent Catches -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+      <h3 class="font-bold text-lg mb-3">Recent Catches</h3>
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-slate-800 text-slate-400 text-sm">
+            <th class="py-2">Fish</th>
+            <th class="py-2">Rarity</th>
+            <th class="py-2">Coins Earned</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in catches %}
+            <tr class="border-b border-slate-800/60">
+              <td class="py-2 font-medium">{{ c.fish_name }}</td>
+              <td class="py-2">{{ c.rarity }}</td>
+              <td class="py-2 text-amber-400">+{{ "{:,}".format(c.coins_earned) }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="3" class="py-3 text-slate-400">No catches yet. Cast your line!</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
 </body>
 </html>
