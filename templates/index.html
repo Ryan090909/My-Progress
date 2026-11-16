@@ -55,7 +55,7 @@
       </div>
     </div>
 
-    <!-- Fishing Location Card (Uses Location Theme) -->
+    <!-- Fishing Location Card -->
     <div class="{{ locations[selected_location]['theme'] }} rounded-xl p-6 shadow-lg border border-white/10">
       <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
         <h2 class="text-xl font-bold">{{ selected_location }}</h2>
@@ -68,12 +68,10 @@
         </form>
       </div>
 
-      {% if selected_location in location_images %}
+      {% if location_image %}
         <img
-          class="w-full max-h-60 object-cover rounded-lg mb-4"
-          src="{{ url_for('static', filename=location_images[selected_location]) }}"
-          data-img="{{ location_images[selected_location] }}"
-          onerror="if(!this.dataset.tried){this.dataset.tried=1;this.src='/static/images/'+this.dataset.img;}else{this.style.display='none';}"
+          class="w-full max-h-60 object-cover rounded-lg mb-4 border border-white/10"
+          src="{{ url_for('static', filename=location_image) }}"
           alt="{{ selected_location }}"
         >
       {% endif %}
