@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Fischhood - Shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-6">
+  <div class="max-w-4xl mx-auto space-y-5">
+
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold">Fisch Shop</h1>
+        <p class="text-sm text-slate-300 mt-1">
+          Coins: <strong class="text-amber-400">{{ "{:,}".format(user.coins) }}</strong> |
+          Equipped: <strong>{{ user.equipped_rod }} (+{{ user.rod_level }})</strong>
+          {% if user.rod_enchant %} | Enchant: <strong class="text-purple-400">{{ user.rod_enchant }}</strong>{% endif %}
+        </p>
+      </div>
+      <a href="{{ url_for('index') }}" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg">Back to Fishing</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="bg-emerald-900/80 border border-emerald-500 text-emerald-100 px-4 py-3 rounded-lg font-semibold">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endwith %}
+
+    <!-- 5-Level Rod Upgrade -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+      <h2 class="text-lg font-bold mb-3">Upgrade Equipped Rod</h2>
+      {% if upgrade_cost is none %}
+        <button disabled class="bg-slate-700 text-slate-400 font-bold px-4 py-2 rounded-lg cursor-not-allowed">MAX LEVEL (+5)</button>
+      {% else %}
+        <form action="{{ url_for('upgrade_rod') }}" method="POST">
+          <button type="submit" {% if user.coins < upgrade_cost %}disabled{% endif %}
+            class="bg-amber-500 hover:bg-amber-400 disabled:bg-slate-700 disabled:text-slate-400 text-slate-950 font-bold px-4 py-2 rounded-lg">
+            Upgrade {{ user.equipped_rod }} to +{{ user.rod_level + 1 }} ({{ "{:,}".format(upgrade_cost) }} Coins)
+          </button>
+        </form>
+      {% endif %}
+    </div>
+
+    <!-- Rods -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+      <h2 class="text-lg font-bold mb-3">Rods</h2>
+      <div class="divide-y divide-slate-800">
+        {% for name, stats in rods.items() %}
+          <div class="py-3 flex justify-between items-center">
+            <div>
+              <strong>{{ name }}</strong> — Luck: <span class="text-emerald-400">+{{ stats.luck }}</span> | Multiplier: <span class="text-sky-400">{{ stats.coin_mult }}x</span>
+            </div>
+            <div>
+              {% if user.equipped_rod == name %}
+                <span class="text-emerald-400 font-bold">Equipped</span>
+              {% else %}
+                <form action="{{ url_for('buy_rod', rod_name=name) }}" method="POST">
+                  <button type="submit" {% if user.coins < stats.cost %}disabled{% endif %}
+                    class="bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-400 text-white font-semibold px-3 py-1.5 rounded-lg">
+                    Buy ({{ "{:,}".format(stats.cost) }} Coins)
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Baits -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+      <h2 class="text-lg font-bold mb-3">Baits (Active: {{ user.equipped_bait or "None" }} — {{ user.bait_count }} left)</h2>
+      <div class="divide-y divide-slate-800">
+        {% for name, stats in baits.items() %}
+          <div class="py-3 flex justify-between items-center">
+            <div>
+              <strong>{{ name }} (x{{ stats.bundle }})</strong> — Luck: <span class="text-emerald-400">+{{ stats.luck }}</span>
+            </div>
+            <form action="{{ url_for('buy_bait', bait_name=name) }}" method="POST">
+              <button type="submit" {% if user.coins < stats.cost %}disabled{% endif %}
+                class="bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-400 text-white font-semibold px-3 py-1.5 rounded-lg">
+                Buy ({{ "{:,}".format(stats.cost) }} Coins)
+              </button>
+            </form>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Special Items -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+      <h2 class="text-lg font-bold mb-3">Special Items (Aurora Casts Left: {{ user.aurora_casts_left }})</h2>
+      <div class="divide-y divide-slate-800">
+        {% for key, item in special_upgrades.items() %}
+          <div class="py-3 flex justify-between items-center gap-4">
+            <div>
+              <strong>{{ item.name }}</strong>: <span class="text-slate-300 text-sm">{{ item.desc }}</span>
+            </div>
+            <div>
+              {% if key == "fish_radar" and user.has_radar %}
+                <span class="text-emerald-400 font-bold">Owned</span>
+              {% else %}
+                <form action="{{ url_for('buy_special', item_key=key) }}" method="POST">
+                  <button type="submit" {% if user.coins < item.cost %}disabled{% endif %}
+                    class="bg-purple-600 hover:bg-purple-500 disabled:bg-slate-700 disabled:text-slate-400 text-white font-semibold px-3 py-1.5 rounded-lg whitespace-nowrap">
+                    Buy ({{ "{:,}".format(item.cost) }} Coins)
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
