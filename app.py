@@ -40,6 +40,30 @@ QUEST_POOL = [
 ]
 
 
+def find_location_image(location_name):
+    targets = {location_name.lower().replace(" ", "").replace("_", "").replace("-", "")}
+    mapped = LOCATION_IMAGES.get(location_name)
+    if mapped:
+        base_mapped = os.path.splitext(mapped)[0]
+        targets.add(base_mapped.lower().replace(" ", "").replace("_", "").replace("-", ""))
+
+    search_dirs = [
+        ("", app.static_folder),
+        ("images/", os.path.join(app.static_folder, "images")),
+    ]
+    for url_prefix, folder_path in search_dirs:
+        if not os.path.isdir(folder_path):
+            continue
+        for fname in os.listdir(folder_path):
+            stem, ext = os.path.splitext(fname)
+            if ext.lower() not in (".png", ".jpg", ".jpeg", ".webp", ".gif"):
+                continue
+            normalized = stem.lower().replace(" ", "").replace("_", "").replace("-", "")
+            if normalized in targets:
+                return f"{url_prefix}{fname}"
+    return None
+
+
 def get_current_user():
     user_id = session.get("user_id")
     if not user_id:
@@ -149,12 +173,13 @@ def index():
     radar_odds = get_location_odds(selected_location, total_luck) if user.has_radar else None
     daily_quest = get_or_create_daily_quest(user)
     catches = CatchLog.query.filter_by(user_id=user.id).order_by(CatchLog.id.desc()).limit(20).all()
+    location_image = find_location_image(selected_location)
 
     return render_template(
         "index.html",
         user=user,
         locations=LOCATIONS,
-        location_images=LOCATION_IMAGES,
+        location_image=location_image,
         selected_location=selected_location,
         total_luck=total_luck,
         total_coin_mult=total_coin_mult,
