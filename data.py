@@ -105,8 +105,11 @@ LOCATIONS = {
 }
 
 LOCATION_IMAGES = {
-    "Castaway Cliffs": "Castaway_Cliffs.png",
+    "Moosewood": "Moosewood.png",
+    "Roslit Bay": "Roslit_Bay.png",
     "Desolate Deep": "DesolatePocket.png",
+    "Castaway Cliffs": "Castaway_Cliffs.png",
+    "Sunstone Island": "Sunstone_Island.png",
     "Lost Jungle": "LostJungle.png",
 }
 
