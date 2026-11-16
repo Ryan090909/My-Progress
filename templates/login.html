@@ -5,33 +5,70 @@
   <title>The Fischhood - Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 flex items-center justify-center min-h-screen p-4">
-  <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 w-full max-w-sm text-center space-y-4">
-    <h1 class="text-2xl font-bold">The Fischhood</h1>
+<body class="bg-slate-950 text-slate-100 flex items-center justify-center min-h-screen p-4 relative overflow-hidden">
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        <p class="text-rose-400 text-sm font-semibold">{{ message }}</p>
-      {% endfor %}
-    {% endwith %}
+  <!-- Full-Screen Background Image (auto-checks static/ and static/images/) -->
+  <img
+    src="{{ url_for('static', filename='fissch-fi.webp') }}"
+    onerror="if(!this.dataset.tried){this.dataset.tried=1;this.src='/static/images/fissch-fi.webp';}"
+    alt="The Fischhood Backdrop"
+    class="fixed inset-0 w-full h-full object-cover -z-20"
+  >
+  <!-- Dark Tint Overlay for Text Readability -->
+  <div class="fixed inset-0 bg-slate-950/65 backdrop-blur-xs -z-10"></div>
 
-    <form action="{{ url_for('login') }}" method="POST" class="space-y-4">
-      <input
-        type="text"
-        name="username"
-        placeholder="Enter username"
-        required
-        class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500"
-      >
-      <div class="flex gap-2">
-        <button type="submit" name="action" value="login" class="w-1/2 bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg">
-          Login
-        </button>
-        <button type="submit" name="action" value="register" class="w-1/2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2.5 rounded-lg">
-          Create Account
-        </button>
+  <!-- Login Card -->
+  <div class="bg-slate-900/90 border border-sky-400/30 rounded-2xl shadow-2xl overflow-hidden w-full max-w-md">
+    <img
+      src="{{ url_for('static', filename='fissch-fi.webp') }}"
+      onerror="if(!this.dataset.tried){this.dataset.tried=1;this.src='/static/images/fissch-fi.webp';}"
+      alt="The Fischhood Banner"
+      class="w-full h-44 object-cover border-b border-slate-800"
+    >
+
+    <div class="p-7 text-center space-y-4">
+      <div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-white">The Fischhood</h1>
+        <p class="text-sm text-sky-300 mt-1">Cast your line. Hunt Divine Secrets.</p>
       </div>
-    </form>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <p class="bg-rose-950/80 border border-rose-500/50 text-rose-300 text-sm font-semibold px-3 py-2 rounded-lg">
+            {{ message }}
+          </p>
+        {% endfor %}
+      {% endwith %}
+
+      <form action="{{ url_for('login') }}" method="POST" class="space-y-4">
+        <input
+          type="text"
+          name="username"
+          placeholder="Enter username"
+          required
+          class="w-full bg-slate-800/90 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-sky-400"
+        >
+        <div class="flex gap-3">
+          <button
+            type="submit"
+            name="action"
+            value="login"
+            class="w-1/2 bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-lg transition cursor-pointer"
+          >
+            Login
+          </button>
+          <button
+            type="submit"
+            name="action"
+            value="register"
+            class="w-1/2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-lg transition cursor-pointer"
+          >
+            Create Account
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
+
 </body>
 </html>
